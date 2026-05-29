@@ -1,6 +1,6 @@
 {
   "name": "@webdecoy/nextjs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Web Decoy middleware for Next.js",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,13 +31,17 @@
   ],
   "author": "Web Decoy",
   "license": "MIT",
+  "homepage": "https://github.com/WebDecoy/node-sdk#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/webdecoy/webdecoy-node.git",
+    "url": "git+https://github.com/WebDecoy/node-sdk.git",
     "directory": "packages/nextjs"
   },
+  "bugs": {
+    "url": "https://github.com/WebDecoy/node-sdk/issues"
+  },
   "dependencies": {
-    "@webdecoy/node": "*"
+    "@webdecoy/node": "^0.2.1"
   },
   "peerDependencies": {
     "next": ">=13.0.0"

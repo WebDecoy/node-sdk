@@ -1,6 +1,6 @@
 {
   "name": "@webdecoy/node",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Web Decoy SDK for Node.js - Bot detection with TLS fingerprinting",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -32,10 +32,14 @@
   ],
   "author": "Web Decoy",
   "license": "MIT",
+  "homepage": "https://github.com/WebDecoy/node-sdk#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/webdecoy/webdecoy-node.git",
+    "url": "git+https://github.com/WebDecoy/node-sdk.git",
     "directory": "packages/webdecoy"
+  },
+  "bugs": {
+    "url": "https://github.com/WebDecoy/node-sdk/issues"
   },
   "dependencies": {
     "axios": "^1.6.5"

@@ -5,7 +5,7 @@
   "description": "Web Decoy Node.js SDK - Bot detection with TLS fingerprinting",
   "repository": {
     "type": "git",
-    "url": "https://github.com/webdecoy/webdecoy-node.git"
+    "url": "git+https://github.com/WebDecoy/node-sdk.git"
   },
   "author": "Web Decoy",
   "license": "MIT",
