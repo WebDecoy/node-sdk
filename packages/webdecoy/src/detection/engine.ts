@@ -71,6 +71,9 @@ export class DetectionEngine {
     const headers = context.headers ?? {};
     const detections: Detection[] = [];
 
+    // Orchestrator-supplied detections (e.g. signals-tampering check).
+    if (context.extraDetections) detections.push(...context.extraDetections);
+
     // --- Proof-of-work outcome -------------------------------------------------
     const pow = context.pow;
     if (pow && pow.provided) {

@@ -252,8 +252,13 @@ export interface DetectionContext {
   ja3Hash?: string | null;
   /** Trusted reverse-proxy header names carrying a JA4 fingerprint. */
   trustedJA4Headers?: string[];
-  /** Proof-of-work verification outcome (Phase 2 wires the real verifier). */
+  /** Proof-of-work verification outcome (supplied by the PoW subsystem). */
   pow?: PoWOutcome;
+  /**
+   * Additional detections to fold into scoring, produced by an outer
+   * orchestrator (e.g. the signals-tampering check in the Captcha service).
+   */
+  extraDetections?: Detection[];
 }
 
 /** Final verdict returned by {@link DetectionEngine.score}. */

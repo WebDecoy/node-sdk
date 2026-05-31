@@ -82,3 +82,29 @@ export type {
   FingerprintStore,
   RateLimiter,
 } from './detection';
+
+// Self-hosted captcha: proof-of-work + detection + session tokens
+export {
+  Captcha,
+  PoWManager,
+  InMemoryChallengeStore,
+  TokenManager,
+  InMemoryTokenStore,
+  resolveSecret,
+} from './captcha';
+
+export type {
+  CaptchaOptions,
+  PoWManagerOptions,
+  ChallengeStore,
+  TokenManagerOptions,
+  TokenStore,
+  ChallengeData,
+  StoredChallenge,
+  PoWSolution,
+  PoWVerification,
+  TokenVerification,
+  VerifyInput,
+  VerifyResult,
+  ScoreResult,
+} from './captcha';
