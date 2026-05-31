@@ -50,3 +50,35 @@ export type {
   ViolationEvent,
   IPEnrichmentData,
 } from './rules';
+
+// In-process detection engine (ported from FCaptcha)
+export {
+  DetectionEngine,
+  calculateCategoryScores,
+  calculateFinalScore,
+  recommend,
+  DEFAULT_WEIGHTS,
+  isDatacenterIP,
+  parseUserAgent,
+  isMobileUA,
+  InMemoryFingerprintStore,
+  InMemoryRateLimiter,
+} from './detection';
+
+export type {
+  DetectionEngineOptions,
+  Detection,
+  CategoryScores,
+  Recommendation,
+  Signals,
+  BehavioralSignals,
+  TemporalSignals,
+  EnvironmentalSignals,
+  FormAnalysisSignals,
+  TextareaKeyboardStats,
+  PoWOutcome,
+  DetectionContext,
+  Verdict,
+  FingerprintStore,
+  RateLimiter,
+} from './detection';
