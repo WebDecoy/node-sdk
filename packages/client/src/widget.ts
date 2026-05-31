@@ -12,7 +12,7 @@ import { SensorCollector } from './collectors/sensor';
 import { getFormAnalyzer } from './collectors/form';
 import { TemporalCollector } from './temporal';
 import { getPoWManager, type PoWManager } from './pow';
-import { getServerUrl } from './config';
+import { getServerUrl, getBasePath } from './config';
 import { sha256 } from './sha256';
 import type { CollectedSignals, PoWSolution, VerifyResponse, WidgetOptions } from './types';
 
@@ -244,7 +244,7 @@ export class CaptchaWidget {
     if (!serverUrl) return this._clientSideVerify(signals);
 
     try {
-      const response = await fetch(serverUrl + '/api/verify', {
+      const response = await fetch(serverUrl + getBasePath() + '/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

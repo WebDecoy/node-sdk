@@ -12,7 +12,7 @@ import { SensorCollector } from './collectors/sensor';
 import { getFormAnalyzer } from './collectors/form';
 import { TemporalCollector } from './temporal';
 import { PoWManager } from './pow';
-import { getServerUrl } from './config';
+import { getServerUrl, getBasePath } from './config';
 import { sha256 } from './sha256';
 import type { CollectedSignals, InvisibleOptions, PoWSolution, VerifyResponse } from './types';
 
@@ -208,7 +208,7 @@ export class InvisibleSession {
     if (!url) return this._clientSideScore(signals);
 
     try {
-      const response = await fetch(url + '/api/score', {
+      const response = await fetch(url + getBasePath() + '/score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

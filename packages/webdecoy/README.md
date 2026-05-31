@@ -127,6 +127,90 @@ import type {
 } from '@webdecoy/node';
 ```
 
+## Self-Hosted Captcha & Detection Engine
+
+In addition to the API-backed `protect()` flow above, the SDK ships a fully
+**in-process** bot-detection engine and captcha — no remote call required. It
+scores ~40 behavioral, environmental, and fingerprint signals collected by the
+[`@webdecoy/client`](https://www.npmjs.com/package/@webdecoy/client) browser
+widget, verifies a SHA-256 proof-of-work, and issues a signed session token.
+
+```
+Browser (@webdecoy/client)            Your server (@webdecoy/node)
+  collect signals + solve PoW  ──▶  Captcha.verify()
+                                      ├─ verify proof-of-work
+                                      ├─ score signals (in-process engine)
+                                      └─ issue session token on success
+```
+
+### Mounting the endpoints
+
+Use your framework adapter (or `createCaptchaEndpoints` directly). The handler
+serves `GET /__webdecoy/challenge`, `POST /__webdecoy/verify`, `POST
+/__webdecoy/score`, and `POST /__webdecoy/token/verify`.
+
+```typescript
+import express from 'express';
+import { webdecoyCaptcha } from '@webdecoy/express';
+
+const app = express();
+app.use(express.json());
+
+app.use(
+  webdecoyCaptcha({
+    secret: process.env.WEBDECOY_SECRET, // required in production
+  }),
+);
+```
+
+Then verify the token your form receives on a protected route:
+
+```typescript
+import { Captcha } from '@webdecoy/node';
+
+const captcha = new Captcha({ secret: process.env.WEBDECOY_SECRET });
+
+app.post('/login', (req, res) => {
+  const result = captcha.verifyToken(req.body.webdecoy_token, req.ip);
+  if (!result.valid) return res.status(403).json({ error: 'captcha failed' });
+  // ...proceed
+});
+```
+
+### Using the engine directly
+
+For full control, score raw signals yourself:
+
+```typescript
+import { DetectionEngine } from '@webdecoy/node';
+
+const engine = new DetectionEngine({ requirePoW: false });
+const verdict = engine.score(signals, {
+  ip,
+  siteKey: 'site',
+  userAgent,
+  headers,
+});
+// verdict: { success, score, recommendation: 'allow'|'challenge'|'block', categoryScores, detections }
+```
+
+> **Note on the scoring model:** the verdict is a confidence-weighted blend
+> across categories, so no single signal can cross the block threshold alone —
+> a missing proof-of-work on an otherwise-clean request yields `challenge`, not
+> `block`. Tune category weights via the `weights` option.
+
+### Security & deployment notes
+
+- **`secret`** signs challenges and tokens. It is **required in production**
+  (`NODE_ENV=production`); a missing or default secret throws. Generate one with
+  `openssl rand -hex 32`.
+- Challenge/token/fingerprint stores are **in-memory** by default. For
+  serverless or multi-instance deployments, supply a shared store via the
+  `challengeStore` / `tokenStore` options (the `ChallengeStore` / `TokenStore`
+  interfaces are the seam for Redis).
+- IP reputation (VPN/proxy/Tor, abuse score, geo) is still served by
+  `api.webdecoy.com` via the SDK's IP-enrichment client.
+
 ## Framework Integrations
 
 For Express.js, use the dedicated middleware package:
@@ -147,7 +231,7 @@ API keys start with `sk_live_` for production or `sk_test_` for testing.
 
 ## Documentation
 
-For full documentation, visit the [GitHub repository](https://github.com/webdecoy/webdecoy-node).
+For full documentation, visit the [GitHub repository](https://github.com/WebDecoy/node-sdk).
 
 ## License
 

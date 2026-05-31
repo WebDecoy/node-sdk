@@ -9,7 +9,7 @@
 import { CaptchaWidget } from './widget';
 import { InvisibleSession } from './invisible';
 import { EnvironmentalCollector } from './collectors/environment';
-import { getServerUrl, setServerUrl } from './config';
+import { getServerUrl, setServerUrl, setBasePath } from './config';
 import type { InvisibleOptions, VerifyResponse, WidgetOptions } from './types';
 
 type AnyWidget = CaptchaWidget | InvisibleSession;
@@ -18,7 +18,7 @@ export interface WebDecoyCaptchaAPI {
   widgets: Map<string, AnyWidget>;
   get serverUrl(): string | null;
   set serverUrl(url: string | null);
-  configure(options: { serverUrl?: string }): void;
+  configure(options: { serverUrl?: string; basePath?: string }): void;
   render(container: string | HTMLElement, options?: WidgetOptions): string;
   getResponse(widgetId: string): string | null;
   reset(widgetId: string): void;
@@ -41,8 +41,9 @@ export const WebDecoyCaptcha: WebDecoyCaptchaAPI = {
     setServerUrl(url);
   },
 
-  configure(options: { serverUrl?: string }): void {
+  configure(options: { serverUrl?: string; basePath?: string }): void {
     if (options.serverUrl) setServerUrl(options.serverUrl);
+    if (options.basePath) setBasePath(options.basePath);
   },
 
   render(container: string | HTMLElement, options?: WidgetOptions): string {

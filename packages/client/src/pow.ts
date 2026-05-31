@@ -6,7 +6,7 @@
  * challenge when no server is configured. Ported from FCaptcha client.js.
  */
 
-import { getServerUrl } from './config';
+import { getServerUrl, getBasePath } from './config';
 import type { Challenge, PoWSolution } from './types';
 
 export class PoWManager {
@@ -95,7 +95,7 @@ export class PoWManager {
 
     try {
       const response = await fetch(
-        `${serverUrl}/api/pow/challenge?siteKey=${encodeURIComponent(siteKey || 'default')}`,
+        `${serverUrl}${getBasePath()}/challenge?siteKey=${encodeURIComponent(siteKey || 'default')}`,
       );
       if (!response.ok) {
         console.warn(`PoW challenge fetch failed (status ${response.status}), using local challenge`);

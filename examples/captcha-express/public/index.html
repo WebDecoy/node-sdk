@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebDecoy Captcha Example</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 440px; margin: 60px auto; color: #222; }
+      h1 { font-size: 20px; }
+      button { margin-top: 16px; padding: 8px 18px; font-size: 14px; border-radius: 6px; border: 1px solid #c1c1c1; background: #fff; cursor: pointer; }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      #result { margin-top: 16px; font-size: 14px; }
+      .ok { color: #2e7d32; }
+      .err { color: #c62828; }
+    </style>
+  </head>
+  <body>
+    <h1>WebDecoy Captcha Example</h1>
+    <p>Solve the captcha, then submit. The token is verified server-side.</p>
+
+    <form id="login-form">
+      <div id="captcha"></div>
+      <button type="submit" id="submit" disabled>Log in</button>
+    </form>
+    <div id="result"></div>
+
+    <script src="/webdecoy.js"></script>
+    <script>
+      let token = null;
+      const submitBtn = document.getElementById('submit');
+      const resultEl = document.getElementById('result');
+
+      // Same-origin server; endpoints are mounted at the default /__webdecoy base.
+      WebDecoyCaptcha.configure({ serverUrl: window.location.origin });
+      WebDecoyCaptcha.render('captcha', {
+        siteKey: 'pk_demo',
+        callback: (t) => {
+          token = t;
+          submitBtn.disabled = false;
+        },
+      });
+
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        resultEl.textContent = 'Submitting...';
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webdecoy_token: token }),
+        });
+        const data = await res.json();
+        resultEl.textContent = data.ok ? '✓ ' + data.message : '✕ ' + data.error;
+        resultEl.className = data.ok ? 'ok' : 'err';
+      });
+    </script>
+  </body>
+</html>

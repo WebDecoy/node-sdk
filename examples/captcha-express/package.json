@@ -1,0 +1,26 @@
+{
+  "name": "webdecoy-captcha-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted captcha example: @webdecoy/client widget + Express endpoints",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@webdecoy/client": "*",
+    "@webdecoy/express": "*",
+    "@webdecoy/node": "*",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
