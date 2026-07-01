@@ -8,6 +8,8 @@ export { detectBehavioral } from './behavioral';
 export { detectTouchAuthenticity, detectSensorEntropy, detectTouchKinematics } from './mobile';
 export { detectFingerprint } from './fingerprint';
 export { detectRateAbuse } from './rate';
+export { analyzeAudioContext } from './audio';
+export { analyzeLies } from './lies';
 export { analyzeHeaders } from './headers';
 export { checkBrowserConsistency } from './consistency';
 export {

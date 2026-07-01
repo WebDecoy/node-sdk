@@ -38,7 +38,17 @@ export type {
 } from './types';
 
 // Rules engine exports
-export { rateLimit, filter, RuleEngine, RateLimitRule, FilterRule } from './rules';
+export {
+  rateLimit,
+  filter,
+  tripwire,
+  honeytoken,
+  RuleEngine,
+  RateLimitRule,
+  FilterRule,
+  TripwireRule,
+  DEFAULT_TRIPWIRE_PATHS,
+} from './rules';
 
 export type {
   Rule,
@@ -47,6 +57,9 @@ export type {
   RuleEngineResult,
   RateLimitConfig,
   FilterConfig,
+  TripwireConfig,
+  HoneytokenOptions,
+  Honeytoken,
   ViolationEvent,
   IPEnrichmentData,
 } from './rules';

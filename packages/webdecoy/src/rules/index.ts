@@ -5,6 +5,8 @@
 export { RuleEngine } from './rule-engine';
 export { RateLimitRule } from './rate-limit-rule';
 export { FilterRule } from './filter-rule';
+export { TripwireRule, DEFAULT_TRIPWIRE_PATHS } from './tripwire-rule';
+export { honeytoken } from './honeytoken';
 export { InMemoryRateLimiter } from './rate-limiter';
 
 export type {
@@ -14,13 +16,16 @@ export type {
   RuleEngineResult,
   RateLimitConfig,
   FilterConfig,
+  TripwireConfig,
   ViolationEvent,
   IPEnrichmentData,
 } from './types';
+export type { HoneytokenOptions, Honeytoken } from './honeytoken';
 
 import { RateLimitRule } from './rate-limit-rule';
 import { FilterRule } from './filter-rule';
-import type { RateLimitConfig, FilterConfig, Rule } from './types';
+import { TripwireRule } from './tripwire-rule';
+import type { RateLimitConfig, FilterConfig, TripwireConfig, Rule } from './types';
 
 /**
  * Factory function to create a rate limit rule
@@ -58,4 +63,28 @@ export function rateLimit(config: RateLimitConfig): Rule {
  */
 export function filter(config: FilterConfig): Rule {
   return new FilterRule(config);
+}
+
+/**
+ * Factory function to create a tripwire (honeypot-path) rule.
+ *
+ * Deterministic, zero-false-positive: any request for a hidden honeypot path is
+ * automated by construction. Detects intent (going where a human can't), which
+ * stealth fingerprint-spoofing (e.g. botasaurus) cannot evade.
+ *
+ * @example
+ * ```typescript
+ * import { WebDecoy, tripwire, honeytoken } from '@webdecoy/node';
+ *
+ * const hp = honeytoken();
+ * const sdk = new WebDecoy({
+ *   rules: [
+ *     tripwire({ paths: [hp.path] }),   // + built-in scanner-bait paths
+ *   ],
+ * });
+ * // inject hp.linkHtml into your pages
+ * ```
+ */
+export function tripwire(config: TripwireConfig = {}): Rule {
+  return new TripwireRule(config);
 }

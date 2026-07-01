@@ -29,6 +29,9 @@ export class EnvironmentalCollector {
       cssMediaQueries: this._getCSSMediaQueries(),
       permissionsInfo: this._getPermissionsInfo(),
       fontsInfo: this._getFontsInfo(),
+
+      // Native-function integrity (stealth self-hiding leaves patched toStrings)
+      lieDetection: this._getLieDetection(),
     };
   }
 
@@ -124,20 +127,14 @@ export class EnvironmentalCollector {
       );
       if (pwKeys.length > 0) signals.push('playwright_globals');
 
-      // Check if navigator.webdriver was deleted or reconfigured
+      // navigator.webdriver *deleted* from the prototype is a genuine automation
+      // tell. NOTE: a merely *configurable* descriptor is normal in real Chrome,
+      // and chrome.runtime is absent on ordinary pages in real Chrome — both
+      // fired on a real browser in live testing, so neither is a signal here.
       const proto = Object.getPrototypeOf(navigator);
       const desc = Object.getOwnPropertyDescriptor(proto, 'webdriver');
       if (!desc) {
-        // Property was deleted from prototype — browsers always have it
         signals.push('webdriver_deleted');
-      } else if (desc.configurable !== false) {
-        signals.push('webdriver_configurable');
-      }
-
-      // Check for missing chrome.runtime in Chrome UA
-      const isChrome = /Chrome\//.test(navigator.userAgent) && !/Edg\//.test(navigator.userAgent);
-      if (isChrome && w.chrome && !w.chrome.runtime) {
-        signals.push('chrome_runtime_missing');
       }
 
       return { detected: signals.length > 0, signals };
@@ -274,6 +271,57 @@ export class EnvironmentalCollector {
       return info;
     } catch (e) {
       return { supported: false, error: true };
+    }
+  }
+
+  /**
+   * Native-function integrity check. Stealth automation hides itself by
+   * overriding native functions; a patched native's `toString()` no longer
+   * reports `[native code]`. A genuine browser never patches its own natives,
+   * so any hit here is deliberate evasion (scored in the `stealth` category).
+   */
+  _getLieDetection(): Record<string, unknown> {
+    try {
+      const w = window as any;
+      const patched: string[] = [];
+
+      const isPatched = (fn: unknown): boolean => {
+        try {
+          return typeof fn === 'function' && (fn as { toString(): string }).toString().indexOf('[native code]') === -1;
+        } catch {
+          return false;
+        }
+      };
+      const check = (fn: unknown, name: string): void => {
+        if (isPatched(fn)) patched.push(name);
+      };
+
+      // If toString itself is patched, every other check is unreliable — flag it.
+      check(Function.prototype.toString, 'Function.prototype.toString');
+      check(navigator.permissions && navigator.permissions.query, 'navigator.permissions.query');
+      check(w.Notification && w.Notification.requestPermission, 'Notification.requestPermission');
+      check(w.HTMLCanvasElement && w.HTMLCanvasElement.prototype.toDataURL, 'HTMLCanvasElement.toDataURL');
+      check(
+        w.WebGLRenderingContext && w.WebGLRenderingContext.prototype.getParameter,
+        'WebGLRenderingContext.getParameter',
+      );
+      check(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices, 'mediaDevices.enumerateDevices');
+
+      // The navigator.webdriver getter is the most-patched native.
+      try {
+        const desc =
+          Object.getOwnPropertyDescriptor(Object.getPrototypeOf(navigator), 'webdriver') ||
+          Object.getOwnPropertyDescriptor(navigator, 'webdriver');
+        if (desc && typeof desc.get === 'function' && desc.get.toString().indexOf('[native code]') === -1) {
+          patched.push('navigator.webdriver getter');
+        }
+      } catch {
+        // ignore
+      }
+
+      return { supported: true, patched, patchedCount: patched.length };
+    } catch (e) {
+      return { supported: false };
     }
   }
 

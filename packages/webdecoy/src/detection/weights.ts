@@ -5,7 +5,16 @@
  * complete variant of the engine and the one the reference test suite exercises.
  */
 
-/** Default per-category weights used to compute the final score. */
+/**
+ * Default per-category weights used to compute the final score.
+ *
+ * `stealth` carries deliberate anti-detection tampering (native functions
+ * patched to hide automation). This is the least-ambiguous evidence of a bot —
+ * a genuine browser never patches its own natives — so it is weighted highest.
+ * Because weights are a simple weighted sum (not required to total 1.0), and
+ * `stealth` is 0 for any clean browser, this raises stealth-bot scores without
+ * affecting legitimate traffic.
+ */
 export const DEFAULT_WEIGHTS: Record<string, number> = {
   vision_ai: 0.15,
   headless: 0.15,
@@ -17,6 +26,7 @@ export const DEFAULT_WEIGHTS: Record<string, number> = {
   datacenter: 0.07,
   tor_vpn: 0.01,
   bot: 0.15,
+  stealth: 0.3,
 };
 
 /** User-Agent substrings that indicate a known automation framework. */

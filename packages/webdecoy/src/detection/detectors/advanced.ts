@@ -14,6 +14,8 @@ import type {
   PermissionsInfo,
   DOMRectInfo,
 } from '../types';
+import { analyzeAudioContext } from './audio';
+import { analyzeLies } from './lies';
 
 export function analyzeWebRTC(webrtcInfo?: WebRTCInfo): Detection[] {
   if (!webrtcInfo || !webrtcInfo.supported) return [];
@@ -248,6 +250,8 @@ export function analyzeAdvancedSignals(signals: Signals, userAgent: string): Det
   if (env.fontsInfo) detections.push(...analyzeFonts(env.fontsInfo, userAgent));
   if (env.permissionsInfo) detections.push(...analyzePermissions(env.permissionsInfo));
   if (env.domRectFingerprint) detections.push(...analyzeDOMRect(env.domRectFingerprint));
+  if (env.audioInfo) detections.push(...analyzeAudioContext(env.audioInfo));
+  if (env.lieDetection) detections.push(...analyzeLies(env.lieDetection));
 
   return detections;
 }
