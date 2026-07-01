@@ -121,6 +121,8 @@ export interface EnvironmentalSignals {
   fontsInfo?: FontsInfo;
   permissionsInfo?: PermissionsInfo;
   domRectFingerprint?: DOMRectInfo;
+  audioInfo?: AudioContextInfo;
+  lieDetection?: LieDetectionInfo;
   [key: string]: unknown;
 }
 
@@ -179,6 +181,27 @@ export interface DOMRectInfo {
   rectAWidth?: number;
   rectBWidth?: number;
   rangeWidth?: number;
+  [key: string]: unknown;
+}
+
+/** AudioContext fingerprint. A real audio stack exposes `baseLatency` and a
+ *  conventional sample rate; headless/mocked stacks omit or fake these. */
+export interface AudioContextInfo {
+  supported?: boolean;
+  sampleRate?: number;
+  state?: string;
+  baseLatency?: number | null;
+  [key: string]: unknown;
+}
+
+/** Native-function integrity check. `patched` lists native functions whose
+ *  `toString()` no longer reports `[native code]` (or whose prototype was
+ *  tampered with) — the signature of stealth automation hiding itself. A real
+ *  browser never patches its own natives. */
+export interface LieDetectionInfo {
+  supported?: boolean;
+  patched?: string[];
+  patchedCount?: number;
   [key: string]: unknown;
 }
 
