@@ -80,6 +80,24 @@ export interface FilterConfig {
 }
 
 /**
+ * Configuration for tripwire (honeypot-path) rules
+ */
+export interface TripwireConfig {
+  /** Exact hidden honeypot paths (e.g. a honeytoken path or `/admin-backup.zip`). */
+  paths?: string[];
+  /** Path prefixes treated as tripwires (e.g. `/.git/`). */
+  prefixes?: string[];
+  /** Regex patterns for tripwire paths. */
+  patterns?: RegExp[];
+  /** Include the built-in scanner/scraper bait paths. Default `true`. */
+  includeDefaults?: boolean;
+  /** Action when a tripwire is hit: 'DENY' (default) or 'THROTTLE'. */
+  action?: 'DENY' | 'THROTTLE';
+  /** Dry run mode: log the violation but don't block. */
+  dryRun?: boolean;
+}
+
+/**
  * A violation event recorded when a rule triggers
  */
 export interface ViolationEvent {

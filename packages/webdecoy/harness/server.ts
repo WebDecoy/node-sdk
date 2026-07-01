@@ -18,11 +18,18 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { DetectionEngine } from '../src/detection/engine';
 import type { Signals } from '../src/detection/types';
+import { RuleEngine, tripwire, honeytoken } from '../src/rules';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const HERE = __dirname;
 const BUNDLE = join(HERE, '../../client/dist/webdecoy.global.js');
 const engine = new DetectionEngine({ requirePoW: false });
+
+// F4 deception layer: a honeytoken decoy link (injected into the page, invisible
+// to humans) + a tripwire rule that DENYs any request for its path. Deterministic
+// zero-FP — only a link-following scraper ever reaches it.
+const HONEYTOKEN = honeytoken({ token: 'harnesstrap' });
+const ruleEngine = new RuleEngine([tripwire({ paths: [HONEYTOKEN.path] })]);
 
 function lower(h: IncomingHttpHeaders): Record<string, string> {
   const o: Record<string, string> = {};
@@ -52,9 +59,26 @@ const server = createServer((req, res) => {
   const url = req.url ?? '/';
   const method = req.method ?? 'GET';
 
+  // --- F4 tripwire: deterministic honeypot-path block, before anything else ---
+  const reqPath = url.split('?')[0];
+  const trip = ruleEngine.evaluate({
+    ip: '203.0.113.10',
+    path: reqPath,
+    method,
+    headers: lower(req.headers),
+    timestamp: Date.now(),
+  });
+  if (trip.action === 'DENY') {
+    console.log(`\n${'-'.repeat(70)}\n[TRIPWIRE HIT]  ${method} ${reqPath}  ->  BLOCK (403)\n  ${trip.reason}`);
+    res.writeHead(403, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ blocked: true, rule: trip.rule, reason: trip.reason }, null, 2));
+    return;
+  }
+
   if (method === 'GET' && (url === '/' || url.startsWith('/?'))) {
+    const html = readFileSync(join(HERE, 'page.html'), 'utf8').replace('<!--HONEYTOKEN-->', HONEYTOKEN.linkHtml);
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(readFileSync(join(HERE, 'page.html')));
+    res.end(html);
     return;
   }
   if (method === 'GET' && url === '/webdecoy.global.js') {

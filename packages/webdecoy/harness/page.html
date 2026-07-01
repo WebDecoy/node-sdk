@@ -20,6 +20,12 @@
   <p class="verdict" id="verdict">collecting…</p>
   <pre id="result">…</pre>
 
+  <!-- A normal, visible link (a crawler following it gets 200). -->
+  <p><a href="/">Home</a></p>
+  <!-- F4: the server injects a hidden honeytoken decoy link here. Invisible to
+       humans; a link-following scraper requests it and trips the tripwire (403). -->
+  <!--HONEYTOKEN-->
+
   <script src="/webdecoy.global.js"></script>
   <script>
     (async () => {
